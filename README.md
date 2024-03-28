@@ -1,2 +1,81 @@
 # example
-servicefilter usage example
+servicefilter usage example, servicefilter provides two service docking methods: plugin and service.
+
+# service
+![data flow](docs/images/example_service.svg)
+
+* start `local-grpc-server` [LocalGrpcServerApplication](grpc-spring/examples/local-grpc-server/src/main/java/net/devh/boot/grpc/examples/local/server/LocalGrpcServerApplication.java)
+
+* start `local-grpc-client` [LocalGrpcClientApplication](grpc-spring/examples/local-grpc-client/src/main/java/net/devh/boot/grpc/examples/local/client/LocalGrpcClientApplication.java)
+
+* start `servicefilter`
+before starting, Execute `cargo build` in the `servicefilter-rust` directory to build `servicefilter-lib-redis`. Modify [config file](service-filter-server.yaml) `lib_load_path`.
+Exec servicefilter-rust/.vscode/launch.json `servicefilter-server`, Also pay attention to the configuration of `args`.
+
+* test
+```bash
+curl 127.0.0.1:8080
+
+# The following command needs to start redis and set the value `set hello world`
+curl --location --request GET '127.0.0.1:8080/redisGet?key=hello' \
+--header 'Content-Type: text/plain'
+```
+
+# plugin
+
+
+
+# Question
+## grpc-spring How to optimize the addition of medadata
+Now I configure the custom ClientInterceptor to GrpcClient to add metadata, but this method requires each interface to be defined once and is not friendly. The code like [ServicefilterMetadataClientInterceptor](grpc-spring/examples/local-grpc-client/src/main/java/net/devh/boot/grpc/examples/local/client/GrpcClientService.java)
+
+Another way I thought of GrpcClient
+```java
+Metadata[] metadatas() default {};
+
+@interface Metadata {
+    String key();
+    String value();
+}
+```
+GrpcClientBeanPostProcessor
+```java
+protected List<ClientInterceptor> interceptorsFromAnnotation(final GrpcClient annotation) throws BeansException {
+    final List<ClientInterceptor> list = Lists.newArrayList();
+	// start
+    GrpcClient.Metadata[] metadatas = annotation.metadatas();
+    if(metadatas.length > 0) {
+
+        Metadata metadata = new Metadata();
+        for(GrpcClient.Metadata meta : metadatas) {
+            metadata.put(Metadata.Key.of(meta.key(), Metadata.ASCII_STRING_MARSHALLER), meta.value());
+        }
+        ClientInterceptor headerInterceptor = MetadataUtils.newAttachHeadersInterceptor(metadata);
+        list.add(headerInterceptor);
+    }
+	// end
+    for (final Class<? extends ClientInterceptor> interceptorClass : annotation.interceptors()) {
+        final ClientInterceptor clientInterceptor;
+        if (this.applicationContext.getBeanNamesForType(interceptorClass).length > 0) {
+            clientInterceptor = this.applicationContext.getBean(interceptorClass);
+        } else {
+            try {
+                clientInterceptor = interceptorClass.getConstructor().newInstance();
+            } catch (final Exception e) {
+                throw new BeanCreationException("Failed to create interceptor instance", e);
+            }
+        }
+        list.add(clientInterceptor);
+    }
+    for (final String interceptorName : annotation.interceptorNames()) {
+        list.add(this.applicationContext.getBean(interceptorName, ClientInterceptor.class));
+    }
+    return list;
+}
+
+```
+
+## Why don't rust and go support plugins like c language?
+## tokio runtime ffi
+When I use redis async, an error will be reported "there is no reactor running, must be called from the context of a tokio 1.x runtime"
+The code like servicefilter-rust/servicefilter-lib/servicefilter-lib-redis/src/redis_routing_filter.rs.bak
