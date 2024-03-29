@@ -1,6 +1,6 @@
 app_id: app1 
 
-lib_load_path: /Users/seal/work/project/servicefilter-rust/target/debug
+lib_load_path: /Users/seal/interest/project/servicefilter-rust/target/debug
 
 control_listen:
   plugin_name: grpc-protocol
@@ -91,27 +91,27 @@ services:
           filter_name: log_filter_input
           plugin_name: log_filter
           args:
-        - filter_id: instance_set_filter_1
-          filter_name: instance_set_filter
-          plugin_name: instance_set_filter
-          args:
+        # - filter_id: instance_set_filter_1
+        #   filter_name: instance_set_filter
+        #   plugin_name: instance_set_filter
+        #   args:
         # - filter_id: filter_req_test_filter_1
         #   filter_name: filter_req_test_filter
         #   plugin_name: filter_req_test_filter
         #   args:
-        - filter_id: grpc_routing_filter_input_1
-          filter_name: grpc_routing_filter
-          plugin_name: grpc_routing_filter
-          args:
+        # - filter_id: grpc_routing_filter_input_1
+        #   filter_name: grpc_routing_filter
+        #   plugin_name: grpc_routing_filter
+        #   args:
 
       local: 
         - filter_id: log_filter_local
           filter_name: log_filter_local
           plugin_name: log_filter
           args:
-        - filter_id: mock_local_filter
-          filter_name: mock_local_filter
-          plugin_name: mock_local_filter
+        - filter_id: servicefilter_lib_mock_server_1
+          filter_name: servicefilter_lib_mock_server_name
+          plugin_name: servicefilter_lib_mock_server
           args:
 
       output:
@@ -136,12 +136,12 @@ services:
           filter_name: log_filter_postrouting
           plugin_name: log_filter
           args:
-        - filter_id: empty_response_filter
-          filter_name: empty_response_filter
-          plugin_name: empty_response_filter
-          args:
-            resp_status: 200
-            grpc_status: 12
+        # - filter_id: empty_response_filter
+        #   filter_name: empty_response_filter
+        #   plugin_name: empty_response_filter
+        #   args:
+        #     resp_status: 200
+        #     grpc_status: 12
         - filter_id: load_balancer_client_filter_1
           filter_name: load_balancer_client_filter_1
           plugin_name: load_balancer_filter
@@ -155,14 +155,14 @@ services:
                   enable_keep_alive: false
                   negotiation_type: NONE
                   attributes:
-                redis:
+                redis-example:
                   instance_id: redis_1
                   protocol: redis
                   address: redis://127.0.0.1/
                   enable_keep_alive: false
                   negotiation_type: NONE
                   attributes:
-                grpc:
+                grpc-example:
                   instance_id: grpc_1
                   protocol: grpc
                   address: http://[::1]:50053

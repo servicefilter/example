@@ -22,8 +22,14 @@ curl --location --request GET '127.0.0.1:8080/redisGet?key=hello' \
 ```
 
 # plugin
+![data flow](docs/images/example-plugin.svg)
 
+* start `servicefilter`
+before starting, Execute `cargo build` in the `servicefilter-rust` directory to build `servicefilter-lib-redis` and `servicefilter-lib-mock-server`. Modify [config file](service-filter-local.yaml) `lib_load_path`.
+Exec servicefilter-rust/.vscode/launch.json `servicefilter-local`, Also pay attention to the configuration of `args`.
 
+* test
+Debugging using grpc client, the file [proto file](docs/proto/helloworld.proto)
 
 # Question
 ## grpc-spring How to optimize the addition of medadata
