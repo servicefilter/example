@@ -33,10 +33,7 @@ import net.devh.boot.grpc.examples.lib.SimpleGrpc.SimpleBlockingStub;
 @Service
 public class GrpcClientService {
 
-    static final Metadata.Key<String> X_SERVICEFILTER_SERVICE_NAME =
-            Metadata.Key.of("x-servicefilter-target-service-name", Metadata.ASCII_STRING_MARSHALLER);
-
-    @GrpcClient(value = "local-grpc-server", interceptors = ServicefilterMetadataClientInterceptor.class)
+    @GrpcClient(value = "local-grpc-server")
     private SimpleBlockingStub simpleStub;
 
     public String sendMessage(final String name) {
@@ -54,20 +51,6 @@ public class GrpcClientService {
             return response.getValue();
         } catch (final StatusRuntimeException e) {
             return "FAILED with " + e.getStatus().getCode().name();
-        }
-    }
-
-    public static class ServicefilterMetadataClientInterceptor implements ClientInterceptor {
-        @Override
-        public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> methodDescriptor, CallOptions callOptions, Channel channel) {
-            return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(channel.newCall(methodDescriptor, callOptions)) {
-
-                @Override
-                public void start(Listener<RespT> responseListener, Metadata headers) {
-                    headers.put(X_SERVICEFILTER_SERVICE_NAME, "local-grpc-server");
-                    super.start(responseListener, headers);
-                }
-            };
         }
     }
 }

@@ -80,6 +80,28 @@ protected List<ClientInterceptor> interceptorsFromAnnotation(final GrpcClient an
 }
 
 ```
+I think the best way is [ServicefilterConfig](grpc-spring/examples/local-grpc-client/src/main/java/net/devh/boot/grpc/examples/local/client/ServicefilterConfig.java)
+
+```java
+    @Bean
+    GrpcChannelConfigurer servicefilterConfigurer() {
+        return (builder, name) -> builder.intercept(new ClientInterceptor() {
+            @Override
+            public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> methodDescriptor, CallOptions callOptions, Channel channel) {
+                return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(channel.newCall(methodDescriptor, callOptions)) {
+
+                    @Override
+                    public void start(Listener<RespT> responseListener, Metadata headers) {
+                        headers.put(X_SERVICEFILTER_SERVICE_NAME, name);
+                        super.start(responseListener, headers);
+                    }
+                };
+            }
+        });
+    }
+```
+
+
 
 ## Why don't rust and go support plugins like c language?
 ## tokio runtime ffi
