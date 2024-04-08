@@ -33,7 +33,7 @@ Debugging using grpc client, the file [proto file](docs/proto/helloworld.proto)
 
 # Question
 ## grpc-spring How to optimize the addition of medadata
-Now I configure the custom ClientInterceptor to GrpcClient to add metadata, but this method requires each interface to be defined once and is not friendly. The code like [ServicefilterMetadataClientInterceptor](grpc-spring/examples/local-grpc-client/src/main/java/net/devh/boot/grpc/examples/local/client/GrpcClientService.java)
+Now I configure the custom ClientInterceptor to GrpcClient to add metadata, but this method requires each interface to be defined once and is not friendly. The code like [GrpcServerService](grpc-spring/examples/local-grpc-server/src/main/java/net/devh/boot/grpc/examples/local/server/GrpcServerService.java)
 
 Another way I thought of GrpcClient
 ```java
