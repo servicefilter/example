@@ -34,10 +34,7 @@ import net.devh.boot.grpc.server.service.GrpcService;
 @GrpcService
 public class GrpcServerService extends SimpleGrpc.SimpleImplBase {
 
-    static final Metadata.Key<String> X_SERVICEFILTER_SERVICE_NAME =
-            Metadata.Key.of("x-servicefilter-target-service-name", Metadata.ASCII_STRING_MARSHALLER);
-
-    @GrpcClient(value = "redis-servicefilter-proxy", interceptors = ServicefilterMetadataClientInterceptor.class)
+    @GrpcClient(value = "redis-servicefilter-proxy")
     private RedisOperateServiceGrpc.RedisOperateServiceBlockingStub redisOperateServiceBlockingStub;
 
     @Override
@@ -54,20 +51,6 @@ public class GrpcServerService extends SimpleGrpc.SimpleImplBase {
         RedisGetReply reply = RedisGetReply.newBuilder().setValue("redisGet ==> " + response.getValue()).build();
         responseObserver.onNext(reply);
         responseObserver.onCompleted();
-    }
-
-    public static class ServicefilterMetadataClientInterceptor implements ClientInterceptor {
-        @Override
-        public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> methodDescriptor, CallOptions callOptions, Channel channel) {
-            return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(channel.newCall(methodDescriptor, callOptions)) {
-
-                @Override
-                public void start(Listener<RespT> responseListener, Metadata headers) {
-                    headers.put(X_SERVICEFILTER_SERVICE_NAME, "redis-servicefilter-proxy");
-                    super.start(responseListener, headers);
-                }
-            };
-        }
     }
 
 }

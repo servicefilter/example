@@ -1,6 +1,6 @@
-package net.devh.boot.grpc.examples.local.client;
+package net.devh.boot.grpc.examples.local.server;
 
-import io.grpc.*;
+import io.grpc.Metadata;
 import io.grpc.stub.MetadataUtils;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelConfigurer;
 import org.springframework.context.annotation.Bean;
